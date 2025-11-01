@@ -1,5 +1,0 @@
-{
-  "name": "Clinic Google Review Form",
-  "description": "A web application to submit review forms with details and image evidence to a Google Apps Script endpoint. It provides a clean, user-friendly interface for data entry and file uploads.",
-  "requestFramePermissions": []
-}
