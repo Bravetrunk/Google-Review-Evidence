@@ -66,6 +66,345 @@
 </head>
 <body class="bg-gray-50">
     <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+    <script type="module">
+import React, { useState, useRef, ChangeEvent, FormEvent, useEffect } from 'react';
+import ReactDOM from 'react-dom/client';
+
+// --- Constants ---
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx2MnvKWkZofBcwUg0KV9eRpdwEkj5WqJT4jB2VVoi_DEpo12MxqkgsLV_mvSbz94aa/exec';
+const EMPLOYEE_OPTIONS = [
+    { value: "น้ำฝน", label: "น้ำฝน" },
+    { value: "ก้อย", label: "ก้อย" },
+];
+
+// --- Services ---
+const submitReview = async (payload) => {
+  let response;
+  try {
+    response = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'cors',
+      body: JSON.stringify(payload),
+    });
+  } catch (error) {
+    console.error("Network error during submission:", error);
+    throw new Error("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณแล้วลองอีกครั้ง");
+  }
+
+  if (!response.ok) {
+    console.error(`Server error: ${response.status} ${response.statusText}`);
+    throw new Error(`The server encountered an error (Status: ${response.status}). This may be due to a server-side configuration issue, such as incorrect Google Drive folder permissions.`);
+  }
+
+  try {
+    const data = await response.json();
+    if (data.status === 'error') {
+      const serverMessage = data.message || 'The server reported an error after processing the request.';
+      if (serverMessage.includes('getFolderById') && serverMessage.includes('DriveApp')) {
+        throw new Error("Server configuration error: Could not access the Google Drive folder. Please verify the Folder ID in the Google Apps Script and check its sharing permissions.");
+      }
+      throw new Error(serverMessage);
+    }
+    return data;
+  } catch (error) {
+    console.error("Error processing server response:", error);
+    if (error instanceof Error && !error.message.includes('JSON')) {
+        throw error;
+    }
+    throw new Error("ได้รับรูปแบบการตอบกลับที่ไม่ถูกต้องจากเซิร์ฟเวอร์");
+  }
+};
+
+
+// --- Components / Icons ---
+const IconPhoto = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" className={className} width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <line x1="15" y1="8" x2="15.01" y2="8"></line>
+    <rect x="4" y="4" width="16" height="16" rx="3"></rect>
+    <path d="M4 15l4 -4a3 5 0 0 1 3 0l5 5"></path>
+    <path d="M14 14l1 -1a3 5 0 0 1 3 0l2 2"></path>
+  </svg>
+);
+
+const IconLoader = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+        <line x1="12" y1="6" x2="12" y2="3"></line>
+        <line x1="16.25" y1="7.75" x2="18.4" y2="5.6"></line>
+        <line x1="18" y1="12" x2="21" y2="12"></line>
+        <line x1="16.25" y1="16.25" x2="18.4" y2="18.4"></line>
+        <line x1="12" y1="18" x2="12" y2="21"></line>
+        <line x1="7.75" y1="16.25" x2="5.6" y2="18.4"></line>
+        <line x1="6" y1="12" x2="3" y2="12"></line>
+        <line x1="7.75" y1="7.75" x2="5.6" y2="5.6"></line>
+    </svg>
+);
+
+const IconCircleCheck = ({ className, animated = false }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+        <circle cx="12" cy="12" r="9"></circle>
+        <path d="M9 12l2 2l4 -4" className={animated ? 'checkmark-draw' : ''}></path>
+    </svg>
+);
+
+const IconAlertCircle = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+        <circle cx="12" cy="12" r="9"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+);
+
+const IconX = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+);
+
+const IconGoogle = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"></path>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+        <path d="M1 1h22v22H1z" fill="none"></path>
+    </svg>
+);
+
+// --- Main App Component ---
+const App = () => {
+  const initialFormData = {
+    employeeName: '',
+  };
+
+  const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          resolve(reader.result.split(',')[1]);
+        } else {
+          reject(new Error('Failed to read file as Base64 string.'));
+        }
+      };
+      reader.onerror = (error) => reject(error);
+    });
+  };
+  
+  const [formData, setFormData] = useState(initialFormData);
+  const [file, setFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState({ message: '', type: null });
+  const [showStatus, setShowStatus] = useState(false);
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setPreviewUrl(null);
+    }
+  }, [file]);
+  
+  useEffect(() => {
+    if (status.message) {
+      setShowStatus(true);
+    } else {
+      setShowStatus(false);
+    }
+  }, [status]);
+
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+      setStatus({ message: '', type: null });
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.employeeName) {
+      setStatus({ message: 'กรุณาเลือกพนักงาน', type: 'error' });
+      return;
+    }
+
+    if (!file) {
+      setStatus({ message: 'กรุณาเลือกรูปภาพเพื่อเป็นหลักฐาน', type: 'error' });
+      return;
+    }
+
+    setIsLoading(true);
+    setStatus({ message: 'กำลังอัปโหลดรีวิวของคุณ กรุณารอสักครู่...', type: 'info' });
+
+    try {
+      const base64Data = await fileToBase64(file);
+      
+      const payload = {
+        employeeName: formData.employeeName,
+        fileData: base64Data,
+        fileName: file.name,
+        mimeType: file.type,
+      };
+
+      await submitReview(payload);
+      
+      setStatus({ message: 'ขอบคุณ! รีวิวของคุณถูกส่งเรียบร้อยแล้ว', type: 'success' });
+      setFormData(initialFormData);
+      handleRemoveFile();
+    } catch (error) {
+      console.error('Submission Error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred.';
+      setStatus({ message: `${errorMessage}`, type: 'error' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getStatusIcon = () => {
+    switch (status.type) {
+      case 'success':
+        return React.createElement(IconCircleCheck, { className: "h-6 w-6 mr-3 text-green-500", animated: true });
+      case 'error':
+        return React.createElement(IconAlertCircle, { className: "h-6 w-6 mr-3 text-red-500" });
+      case 'info':
+        return React.createElement(IconLoader, { className: "h-6 w-6 mr-3 animate-spin text-blue-500" });
+      default:
+        return null;
+    }
+  };
+
+  return (
+    React.createElement("div", { className: "bg-gray-50 min-h-screen flex items-center justify-center p-4 font-sans" },
+      React.createElement("div", { className: "w-full max-w-md bg-white p-8 rounded-2xl shadow-lg border border-gray-200" },
+        React.createElement("div", { className: "text-center mb-8" },
+          React.createElement("div", { className: "flex items-center justify-center gap-3" },
+            React.createElement(IconGoogle, { className: "h-8 w-8 text-gray-700" }),
+            React.createElement("h1", { className: "text-3xl font-bold text-main-font" }, "ส่งหลักฐาน Google Review")
+          ),
+          React.createElement("p", { className: "text-body-font mt-2" }, "ความคิดเห็นของคุณช่วยให้เราพัฒนา")
+        ),
+        
+        React.createElement("form", { onSubmit: handleSubmit, noValidate: true },
+          React.createElement("div", { className: "space-y-6" },
+            React.createElement("div", null,
+              React.createElement("label", { htmlFor: "employeeName", className: "block text-sm font-medium text-gray-700 mb-1" }, "👥 ชื่อพนักงาน"),
+              React.createElement("select", {
+                id: "employeeName",
+                name: "employeeName",
+                value: formData.employeeName,
+                onChange: handleInputChange,
+                required: true,
+                className: "w-full bg-gray-50 text-gray-900 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+              },
+                React.createElement("option", { value: "", disabled: true }, "-- เลือกพนักงาน --"),
+                EMPLOYEE_OPTIONS.map(opt => React.createElement("option", { key: opt.value, value: opt.value }, opt.label))
+              )
+            ),
+            
+            React.createElement("div", null,
+              React.createElement("label", { htmlFor: "evidence", className: "block text-sm font-medium text-gray-700 mb-1" }, "📸 รูปภาพหลักฐาน"),
+              previewUrl ? (
+                React.createElement("div", { className: "mt-2 relative" },
+                  React.createElement("img", { src: previewUrl, alt: "Image preview", className: "w-full h-auto max-h-60 object-contain rounded-lg border border-gray-200" }),
+                  React.createElement("button", {
+                    type: "button",
+                    onClick: handleRemoveFile,
+                    className: "absolute top-2 right-2 bg-white/70 backdrop-blur-sm rounded-full p-1 text-gray-600 hover:text-red-500 hover:bg-white transition-all duration-200",
+                    "aria-label": "Remove image"
+                  },
+                    React.createElement(IconX, { className: "h-5 w-5" })
+                  )
+                )
+              ) : (
+                React.createElement("div", { className: "mt-2 flex justify-center px-6 pt-8 pb-8 border-2 border-gray-300 border-dashed rounded-lg" },
+                  React.createElement("div", { className: "space-y-1 text-center" },
+                    React.createElement(IconPhoto, { className: "mx-auto h-12 w-12 text-gray-400" }),
+                    React.createElement("div", { className: "flex text-sm text-gray-600" },
+                      React.createElement("label", { htmlFor: "evidence", className: "relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-primary-dark focus-within:outline-none" },
+                        React.createElement("span", null, "อัปโหลดรูปภาพ"),
+                        React.createElement("input", { id: "evidence", name: "evidence", type: "file", className: "sr-only", accept: "image/*", onChange: handleFileChange, ref: fileInputRef, required: true })
+                      )
+                    ),
+                    React.createElement("p", { className: "text-xs text-gray-500" }, "ไฟล์ PNG, JPG ขนาดไม่เกิน 10MB")
+                  )
+                )
+              )
+            )
+          ),
+          
+          React.createElement("div", { className: "mt-8" },
+            React.createElement("button", {
+              type: "submit",
+              disabled: isLoading,
+              className: "w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-semibold text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300 transform hover:-translate-y-1"
+            },
+              isLoading ? (
+                React.createElement(React.Fragment, null,
+                  React.createElement(IconLoader, { className: "h-5 w-5 mr-3 animate-spin" }),
+                  React.createElement("span", null, "กำลังส่ง...")
+                )
+              ) : (
+                'ส่งรีวิว'
+              )
+            )
+          )
+        ),
+        
+        React.createElement("div", { className: `transition-all duration-500 ease-in-out ${showStatus ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}` },
+          status.message && (
+            React.createElement("div", { className: `mt-6 p-4 rounded-lg flex items-start text-sm ${
+              status.type === 'success' ? 'bg-green-50 border border-green-200 text-green-800' :
+              status.type === 'error' ? 'bg-red-50 border border-red-200 text-red-800' :
+              'bg-blue-50 border border-blue-200 text-blue-800'
+            }`},
+              React.createElement("div", { className: "flex-shrink-0" }, getStatusIcon()),
+              React.createElement("div", { className: "ml-1" },
+                React.createElement("p", { className: "font-medium" }, status.message)
+              )
+            )
+          )
+        )
+      )
+    )
+  );
+};
+
+
+// --- App Entry Point ---
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error("Could not find root element to mount to");
+}
+
+const root = ReactDOM.createRoot(rootElement);
+root.render(
+  React.createElement(React.StrictMode, null, 
+    React.createElement(App, null)
+  )
+);
+</script>
 </body>
 </html>
