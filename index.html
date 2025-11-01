@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ส่งหลักฐาน Google Review</title>
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="https://placehold.co/32x32/04713F/FFFFFF?text=R">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://placehold.co/32x32/04713F/FFFFFF?text=R">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://placehold.co/16x16/04713F/FFFFFF?text=R">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://placehold.co/180x180/04713F/FFFFFF?text=R">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Prompt', 'sans-serif'],
+            },
+            colors: {
+              primary: {
+                DEFAULT: '#04713F',
+                dark: '#035730',
+              },
+              accent: '#373737',
+              'main-font': '#222222',
+              'body-font': '#4E4E4E',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        font-family: 'Prompt', sans-serif;
+      }
+      /* Animation for the checkmark icon */
+      .checkmark-draw {
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        animation: draw 0.5s ease-out forwards;
+      }
+      @keyframes draw {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+  }
+}
+</script>
+</head>
+<body class="bg-gray-50">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+</html>
