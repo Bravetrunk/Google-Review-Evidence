@@ -205,7 +205,7 @@
     <!-- JavaScript is now embedded inside the HTML -->
     <script>
         // This URL is now set to your specific Google Apps Script deployment
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx2MnvKWkZofBcwUg0KV9eRpdwEk5WqJT4jB2VVoi_DEpo12MxqkgsLV_mvSbz94aa/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx2MnvKWkZofBcwUg0KV9eRpdwEkj5WqJT4jB2VVoi_DEpo12MxqkgsLV_mvSbz94aa/exec';
 
         const form = document.getElementById('reviewForm');
         const statusMessage = document.getElementById('statusMessage');
@@ -213,6 +213,30 @@
 
         // Define the default button text including the emoji
         const DEFAULT_SUBMIT_TEXT = '✅ Submit';
+        
+        /**
+         * Function to handle fetch request with exponential backoff for network resilience.
+         * Retries specifically on network errors (like 'Failed to fetch').
+         */
+        async function fetchWithRetry(url, options, maxRetries = 3) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    // If fetch succeeds (even if the server returns 4xx/5xx), return the response
+                    return response;
+                } catch (error) {
+                    // Only retry if it's a true network error (e.g., Failed to fetch)
+                    if (i === maxRetries - 1) {
+                        throw error; // If last attempt failed, throw the error
+                    }
+                    // Wait for 2^i seconds before retrying
+                    const delay = (2 ** i) * 1000;
+                    console.warn(`Fetch attempt ${i + 1} failed. Retrying in ${delay / 1000}s...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -235,7 +259,7 @@
             // Use FileReader to read file as Base64
             const reader = new FileReader();
             reader.readAsDataURL(file);
-            reader.onloadend = () => {
+            reader.onloadend = async () => { // Made onloadend async to use await
                 const base64Data = reader.result.split(',')[1]; // Get just the Base64 part
 
                 // Updated payload: Removed 'bonus' and 'cost'
@@ -246,25 +270,23 @@
                     mimeType: file.type
                 };
 
-                // Send data to Google Apps Script
-                fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'cors', // Required for cross-origin requests
-                    body: JSON.stringify(payload)
-                })
-                .then(response => {
-                    // Check if the response is successful (status 200-299)
+                try {
+                    // Send data to Google Apps Script using retry logic
+                    const response = await fetchWithRetry(SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'cors', // Required for cross-origin requests
+                        body: JSON.stringify(payload)
+                    });
+
+                    // Process the response once the fetch succeeds
                     if (!response.ok) {
-                        // If not OK, try to get error text from the response body
-                        return response.text().then(text => {
-                            // Throw an error with the response text or status
-                            throw new Error(text || `Server responded with status: ${response.status}`);
-                        });
+                        const text = await response.text();
+                        // Throw an error with the response text or status
+                        throw new Error(text || `Server responded with status: ${response.status}`);
                     }
-                    // If response is OK, parse it as JSON
-                    return response.json();
-                })
-                .then(data => {
+                    
+                    const data = await response.json();
+
                     if (data.status === 'success') {
                         showSuccess('Form submitted successfully!');
                         form.reset();
@@ -272,22 +294,22 @@
                         // Handle cases where response is OK but app script reports an error
                         throw new Error(data.message || 'An unknown server error occurred.');
                     }
-                })
-                .catch(error => {
+                } catch (error) {
                     console.error('Error:', error);
                     let userMessage = `Error: ${error.message}`; // Default error
                     
                     // --- IMPROVED ERROR HANDLING ---
-                    // Check for specific error messages to show a friendlier note
-                    if (error.message && (error.message.includes('DriveApp') || error.message.includes('Unexpected error'))) {
+                    if (error.message && error.message.includes('Failed to fetch')) {
+                        userMessage = 'ข้อผิดพลาดเครือข่าย: ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบลิงก์สคริปต์ (Apps Script URL) และการเชื่อมต่ออินเทอร์เน็ต';
+                    } else if (error.message && (error.message.includes('DriveApp') || error.message.includes('Unexpected error'))) {
                         // This error indicates a server-side issue, likely with Drive permissions or ID.
-                        userMessage = 'Submission failed: A server error occurred. Please contact the administrator.';
-                    } else if (error.message && (error.message.includes('NetworkError') || error.message.includes('Failed to fetch'))) {
-                        userMessage = 'Network error. Please check your connection and try again.';
+                        userMessage = 'การส่งล้มเหลว: เกิดข้อผิดพลาดบนเซิร์ฟเวอร์ กรุณาติดต่อผู้ดูแลระบบ';
+                    } else if (error.message && (error.message.includes('NetworkError'))) {
+                        userMessage = 'ข้อผิดพลาดเครือข่าย โปรดตรวจสอบการเชื่อมต่อของคุณแล้วลองอีกครั้ง';
                     }
                     
                     showError(userMessage);
-                });
+                }
             };
             
             reader.onerror = (error) => {
