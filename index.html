@@ -1,410 +1,314 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ส่งหลักฐาน Google Review</title>
+    <title>Google Review Form</title>
 
-    <!-- Favicons -->
-    <link rel="icon" type="image/x-icon" href="https://placehold.co/32x32/04713F/FFFFFF?text=R">
+    <!-- --- FAVICON AND ICON TAGS FOR ALL PLATFORMS --- -->
+    
+    <!-- 1. Standard Favicons (Most browsers) -->
+    <link rel="icon" type="image/x-icon" href="https://placehold.co/32x32/04713F/FFFFFF?text=R"> <!-- Standard .ico format placeholder -->
     <link rel="icon" type="image/png" sizes="32x32" href="https://placehold.co/32x32/04713F/FFFFFF?text=R">
     <link rel="icon" type="image/png" sizes="16x16" href="https://placehold.co/16x16/04713F/FFFFFF?text=R">
+
+    <!-- 2. Apple / iOS (Add to Home Screen) -->
     <link rel="apple-touch-icon" sizes="180x180" href="https://placehold.co/180x180/04713F/FFFFFF?text=R">
+    <link rel="mask-icon" href="https://placehold.co/150x150/04713F/FFFFFF?text=R" color="#04713F"> <!-- Safari Pinned Tab -->
+
+    <!-- 3. Android / Chrome -->
+    <meta name="theme-color" content="#04713F">
+    <link rel="icon" type="image/png" sizes="192x192" href="https://placehold.co/192x192/04713F/FFFFFF?text=R">
     
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- 4. Microsoft / Windows Tiles -->
+    <meta name="msapplication-TileColor" content="#04713F">
+    <meta name="msapplication-TileImage" content="https://placehold.co/270x270/04713F/FFFFFF?text=R">
     
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Prompt', 'sans-serif'],
-            },
-            colors: {
-              primary: {
-                DEFAULT: '#04713F',
-                dark: '#035730',
-              },
-              accent: '#373737',
-              'main-font': '#222222',
-              'body-font': '#4E4E4E',
-            }
-          }
-        }
-      }
-    </script>
+    <!-- --- END ICON TAGS --- -->
+
+    <!-- CSS styles are now embedded inside the HTML -->
     <style>
-      body {
-        font-family: 'Prompt', sans-serif;
-      }
-      /* Animation for the checkmark icon */
-      .checkmark-draw {
-        stroke-dasharray: 48;
-        stroke-dashoffset: 48;
-        animation: draw 0.5s ease-out forwards;
-      }
-      @keyframes draw {
-        to {
-          stroke-dashoffset: 0;
+        /* Using your theme colors as CSS Variables */
+        :root {
+            --primary-color: #04713F;
+            --secondary-color: #FFFFFF;
+            --accent-color: #373737;
+            --main-font-color: #222222;
+            --body-font-color: #4E4E4E;
+            --primary-glow: rgba(4, 113, 63, 0.25);
         }
-      }
+
+        body {
+            /* CHANGED FONT TO SUKHUMVIT SET with system fallbacks */
+            font-family: "Sukhumvit Set", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: var(--body-font-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .form-container {
+            background-color: var(--secondary-color);
+            padding: 2.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h1 {
+            color: var(--main-font-color);
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            color: var(--body-font-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+        /* --- IMPROVED INPUT FIELDS --- */
+        input[type="number"],
+        input[type="file"],
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box; /* Important for padding to work correctly */
+            font-size: 1rem;
+            /* Add smooth transition for focus effect */
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        
+        /* Add a focus style to highlight the active field */
+        input[type="number"]:focus,
+        input[type="file"]:focus,
+        select:focus {
+            /* Remove default browser outline */
+            outline: none; 
+            /* Use your primary color for the border */
+            border-color: var(--primary-color);
+            /* Add a subtle "glow" effect */
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        input[type="file"] {
+            padding: 0.5rem;
+        }
+
+        /* --- IMPROVED SUBMIT BUTTON --- */
+        button[type="submit"] {
+            width: 100%;
+            padding: 0.85rem;
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            /* Add transform and box-shadow to the transition */
+            transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Improved hover effect */
+        button[type="submit"]:hover {
+            background-color: #035730; /* A darker shade of primary */
+            /* Make the button "lift" */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Add an active (click) effect */
+        button[type="submit"]:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        button[type="submit"]:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        #statusMessage {
+            margin-top: 1rem;
+            text-align: center;
+            font-weight: 600;
+        }
+        #statusMessage.success {
+            color: var(--primary-color);
+        }
+        #statusMessage.error {
+            color: #D32F2F;
+        }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/"
-  }
-}
-</script>
 </head>
-<body class="bg-gray-50">
-    <div id="root"></div>
-    <script type="module">
-import React, { useState, useRef, ChangeEvent, FormEvent, useEffect } from 'react';
-import ReactDOM from 'react-dom/client';
+<body>
 
-// --- Constants ---
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx2MnvKWkZofBcwUg0KV9eRpdwEkj5WqJT4jB2VVoi_DEpo12MxqkgsLV_mvSbz94aa/exec';
-const EMPLOYEE_OPTIONS = [
-    { value: "น้ำฝน", label: "น้ำฝน" },
-    { value: "ก้อย", label: "ก้อย" },
-];
-
-// --- Services ---
-const submitReview = async (payload) => {
-  let response;
-  try {
-    response = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      mode: 'cors',
-      body: JSON.stringify(payload),
-    });
-  } catch (error) {
-    console.error("Network error during submission:", error);
-    throw new Error("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณแล้วลองอีกครั้ง");
-  }
-
-  if (!response.ok) {
-    console.error(`Server error: ${response.status} ${response.statusText}`);
-    throw new Error(`The server encountered an error (Status: ${response.status}). This may be due to a server-side configuration issue, such as incorrect Google Drive folder permissions.`);
-  }
-
-  try {
-    const data = await response.json();
-    if (data.status === 'error') {
-      const serverMessage = data.message || 'The server reported an error after processing the request.';
-      if (serverMessage.includes('getFolderById') && serverMessage.includes('DriveApp')) {
-        throw new Error("Server configuration error: Could not access the Google Drive folder. Please verify the Folder ID in the Google Apps Script and check its sharing permissions.");
-      }
-      throw new Error(serverMessage);
-    }
-    return data;
-  } catch (error) {
-    console.error("Error processing server response:", error);
-    if (error instanceof Error && !error.message.includes('JSON')) {
-        throw error;
-    }
-    throw new Error("ได้รับรูปแบบการตอบกลับที่ไม่ถูกต้องจากเซิร์ฟเวอร์");
-  }
-};
-
-
-// --- Components / Icons ---
-const IconPhoto = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={className} width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
-    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-    <line x1="15" y1="8" x2="15.01" y2="8"></line>
-    <rect x="4" y="4" width="16" height="16" rx="3"></rect>
-    <path d="M4 15l4 -4a3 5 0 0 1 3 0l5 5"></path>
-    <path d="M14 14l1 -1a3 5 0 0 1 3 0l2 2"></path>
-  </svg>
-);
-
-const IconLoader = ({ className }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
-        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-        <line x1="12" y1="6" x2="12" y2="3"></line>
-        <line x1="16.25" y1="7.75" x2="18.4" y2="5.6"></line>
-        <line x1="18" y1="12" x2="21" y2="12"></line>
-        <line x1="16.25" y1="16.25" x2="18.4" y2="18.4"></line>
-        <line x1="12" y1="18" x2="12" y2="21"></line>
-        <line x1="7.75" y1="16.25" x2="5.6" y2="18.4"></line>
-        <line x1="6" y1="12" x2="3" y2="12"></line>
-        <line x1="7.75" y1="7.75" x2="5.6" y2="5.6"></line>
-    </svg>
-);
-
-const IconCircleCheck = ({ className, animated = false }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
-        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-        <circle cx="12" cy="12" r="9"></circle>
-        <path d="M9 12l2 2l4 -4" className={animated ? 'checkmark-draw' : ''}></path>
-    </svg>
-);
-
-const IconAlertCircle = ({ className }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
-        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-        <circle cx="12" cy="12" r="9"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-    </svg>
-);
-
-const IconX = ({ className }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
-        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-    </svg>
-);
-
-const IconGoogle = ({ className }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24">
-        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
-        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
-        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"></path>
-        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
-        <path d="M1 1h22v22H1z" fill="none"></path>
-    </svg>
-);
-
-// --- Main App Component ---
-const App = () => {
-  const initialFormData = {
-    employeeName: '',
-  };
-
-  const fileToBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        if (typeof reader.result === 'string') {
-          resolve(reader.result.split(',')[1]);
-        } else {
-          reject(new Error('Failed to read file as Base64 string.'));
-        }
-      };
-      reader.onerror = (error) => reject(error);
-    });
-  };
-  
-  const [formData, setFormData] = useState(initialFormData);
-  const [file, setFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [status, setStatus] = useState({ message: '', type: null });
-  const [showStatus, setShowStatus] = useState(false);
-  const fileInputRef = useRef(null);
-
-  useEffect(() => {
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
-      return () => URL.revokeObjectURL(url);
-    } else {
-      setPreviewUrl(null);
-    }
-  }, [file]);
-  
-  useEffect(() => {
-    if (status.message) {
-      setShowStatus(true);
-    } else {
-      setShowStatus(false);
-    }
-  }, [status]);
-
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-      setStatus({ message: '', type: null });
-    }
-  };
-
-  const handleRemoveFile = () => {
-    setFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!formData.employeeName) {
-      setStatus({ message: 'กรุณาเลือกพนักงาน', type: 'error' });
-      return;
-    }
-
-    if (!file) {
-      setStatus({ message: 'กรุณาเลือกรูปภาพเพื่อเป็นหลักฐาน', type: 'error' });
-      return;
-    }
-
-    setIsLoading(true);
-    setStatus({ message: 'กำลังอัปโหลดรีวิวของคุณ กรุณารอสักครู่...', type: 'info' });
-
-    try {
-      const base64Data = await fileToBase64(file);
-      
-      const payload = {
-        employeeName: formData.employeeName,
-        fileData: base64Data,
-        fileName: file.name,
-        mimeType: file.type,
-      };
-
-      await submitReview(payload);
-      
-      setStatus({ message: 'ขอบคุณ! รีวิวของคุณถูกส่งเรียบร้อยแล้ว', type: 'success' });
-      setFormData(initialFormData);
-      handleRemoveFile();
-    } catch (error) {
-      console.error('Submission Error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred.';
-      setStatus({ message: `${errorMessage}`, type: 'error' });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const getStatusIcon = () => {
-    switch (status.type) {
-      case 'success':
-        return React.createElement(IconCircleCheck, { className: "h-6 w-6 mr-3 text-green-500", animated: true });
-      case 'error':
-        return React.createElement(IconAlertCircle, { className: "h-6 w-6 mr-3 text-red-500" });
-      case 'info':
-        return React.createElement(IconLoader, { className: "h-6 w-6 mr-3 animate-spin text-blue-500" });
-      default:
-        return null;
-    }
-  };
-
-  return (
-    React.createElement("div", { className: "bg-gray-50 min-h-screen flex items-center justify-center p-4 font-sans" },
-      React.createElement("div", { className: "w-full max-w-md bg-white p-8 rounded-2xl shadow-lg border border-gray-200" },
-        React.createElement("div", { className: "text-center mb-8" },
-          React.createElement("div", { className: "flex items-center justify-center gap-3" },
-            React.createElement(IconGoogle, { className: "h-8 w-8 text-gray-700" }),
-            React.createElement("h1", { className: "text-3xl font-bold text-main-font" }, "ส่งหลักฐาน Google Review")
-          ),
-          React.createElement("p", { className: "text-body-font mt-2" }, "ความคิดเห็นของคุณช่วยให้เราพัฒนา")
-        ),
+    <div class="form-container">
+        <!-- ADDED EMOJIS TO THE TITLE -->
+        <h1>📝 Google Review Form 🌟</h1>
+        <!-- CHANGED PARAGRAPH TEXT -->
+        <p>อัพโหลดหลักฐาน</p>
         
-        React.createElement("form", { onSubmit: handleSubmit, noValidate: true },
-          React.createElement("div", { className: "space-y-6" },
-            React.createElement("div", null,
-              React.createElement("label", { htmlFor: "employeeName", className: "block text-sm font-medium text-gray-700 mb-1" }, "👥 ชื่อพนักงาน"),
-              React.createElement("select", {
-                id: "employeeName",
-                name: "employeeName",
-                value: formData.employeeName,
-                onChange: handleInputChange,
-                required: true,
-                className: "w-full bg-gray-50 text-gray-900 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
-              },
-                React.createElement("option", { value: "", disabled: true }, "-- เลือกพนักงาน --"),
-                EMPLOYEE_OPTIONS.map(opt => React.createElement("option", { key: opt.value, value: opt.value }, opt.label))
-              )
-            ),
+        <form id="reviewForm">
+            <!-- Removed Bonus Field -->
             
-            React.createElement("div", null,
-              React.createElement("label", { htmlFor: "evidence", className: "block text-sm font-medium text-gray-700 mb-1" }, "📸 รูปภาพหลักฐาน"),
-              previewUrl ? (
-                React.createElement("div", { className: "mt-2 relative" },
-                  React.createElement("img", { src: previewUrl, alt: "Image preview", className: "w-full h-auto max-h-60 object-contain rounded-lg border border-gray-200" }),
-                  React.createElement("button", {
-                    type: "button",
-                    onClick: handleRemoveFile,
-                    className: "absolute top-2 right-2 bg-white/70 backdrop-blur-sm rounded-full p-1 text-gray-600 hover:text-red-500 hover:bg-white transition-all duration-200",
-                    "aria-label": "Remove image"
-                  },
-                    React.createElement(IconX, { className: "h-5 w-5" })
-                  )
-                )
-              ) : (
-                React.createElement("div", { className: "mt-2 flex justify-center px-6 pt-8 pb-8 border-2 border-gray-300 border-dashed rounded-lg" },
-                  React.createElement("div", { className: "space-y-1 text-center" },
-                    React.createElement(IconPhoto, { className: "mx-auto h-12 w-12 text-gray-400" }),
-                    React.createElement("div", { className: "flex text-sm text-gray-600" },
-                      React.createElement("label", { htmlFor: "evidence", className: "relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-primary-dark focus-within:outline-none" },
-                        React.createElement("span", null, "อัปโหลดรูปภาพ"),
-                        React.createElement("input", { id: "evidence", name: "evidence", type: "file", className: "sr-only", accept: "image/*", onChange: handleFileChange, ref: fileInputRef, required: true })
-                      )
-                    ),
-                    React.createElement("p", { className: "text-xs text-gray-500" }, "ไฟล์ PNG, JPG ขนาดไม่เกิน 10MB")
-                  )
-                )
-              )
-            )
-          ),
-          
-          React.createElement("div", { className: "mt-8" },
-            React.createElement("button", {
-              type: "submit",
-              disabled: isLoading,
-              className: "w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-semibold text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300 transform hover:-translate-y-1"
-            },
-              isLoading ? (
-                React.createElement(React.Fragment, null,
-                  React.createElement(IconLoader, { className: "h-5 w-5 mr-3 animate-spin" }),
-                  React.createElement("span", null, "กำลังส่ง...")
-                )
-              ) : (
-                'ส่งรีวิว'
-              )
-            )
-          )
-        ),
+            <!-- Removed Cost Field -->
+            
+            <div class="form-group">
+                <!-- ADDED EMOJI TO THE LABEL -->
+                <label for="employeeName">👥 ชื่อพนักงาน (Employee Name)</label>
+                <select id="employeeName" name="employeeName" required>
+                    <!-- 
+                        !!! IMPORTANT !!!
+                        Updated options with the names: น้ำฝน and ก้อย
+                    -->
+                    <option value="">-- กรุณาเลือก --</option>
+                    <option value="น้ำฝน">น้ำฝน</option>
+                    <option value="ก้อย">ก้อย</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <!-- ADDED EMOJI TO THE LABEL -->
+                <label for="evidence">📸 หลักฐาน (Image Evidence)</label>
+                <input type="file" id="evidence" name="evidence" accept="image/*" required>
+            </div>
+            
+            <!-- ADDED EMOJI TO THE SUBMIT BUTTON -->
+            <button type="submit" id="submitButton">✅ Submit</button>
+        </form>
         
-        React.createElement("div", { className: `transition-all duration-500 ease-in-out ${showStatus ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}` },
-          status.message && (
-            React.createElement("div", { className: `mt-6 p-4 rounded-lg flex items-start text-sm ${
-              status.type === 'success' ? 'bg-green-50 border border-green-200 text-green-800' :
-              status.type === 'error' ? 'bg-red-50 border border-red-200 text-red-800' :
-              'bg-blue-50 border border-blue-200 text-blue-800'
-            }`},
-              React.createElement("div", { className: "flex-shrink-0" }, getStatusIcon()),
-              React.createElement("div", { className: "ml-1" },
-                React.createElement("p", { className: "font-medium" }, status.message)
-              )
-            )
-          )
-        )
-      )
-    )
-  );
-};
+        <div id="statusMessage"></div>
+    </div>
 
+    <!-- JavaScript is now embedded inside the HTML -->
+    <script>
+        // This URL is now set to your specific Google Apps Script deployment
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx2MnvKWkZofBcwUg0KV9eRpdwEk5WqJT4jB2VVoi_DEpo12MxqkgsLV_mvSbz94aa/exec';
 
-// --- App Entry Point ---
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error("Could not find root element to mount to");
-}
+        const form = document.getElementById('reviewForm');
+        const statusMessage = document.getElementById('statusMessage');
+        const submitButton = document.getElementById('submitButton');
 
-const root = ReactDOM.createRoot(rootElement);
-root.render(
-  React.createElement(React.StrictMode, null, 
-    React.createElement(App, null)
-  )
-);
-</script>
+        // Define the default button text including the emoji
+        const DEFAULT_SUBMIT_TEXT = '✅ Submit';
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Disable button and show loading message
+            submitButton.disabled = true;
+            submitButton.textContent = '... Submitting ...'; // Use simple text during loading
+            statusMessage.textContent = 'Please wait, uploading file...';
+            statusMessage.className = '';
+
+            // Get all form data (only employeeName remains)
+            const employeeName = document.getElementById('employeeName').value;
+            const file = document.getElementById('evidence').files[0];
+
+            if (!file) {
+                showError('Please select an image file.');
+                return;
+            }
+
+            // Use FileReader to read file as Base64
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = () => {
+                const base64Data = reader.result.split(',')[1]; // Get just the Base64 part
+
+                // Updated payload: Removed 'bonus' and 'cost'
+                const payload = {
+                    employeeName: employeeName,
+                    fileData: base64Data,
+                    fileName: file.name,
+                    mimeType: file.type
+                };
+
+                // Send data to Google Apps Script
+                fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'cors', // Required for cross-origin requests
+                    body: JSON.stringify(payload)
+                })
+                .then(response => {
+                    // Check if the response is successful (status 200-299)
+                    if (!response.ok) {
+                        // If not OK, try to get error text from the response body
+                        return response.text().then(text => {
+                            // Throw an error with the response text or status
+                            throw new Error(text || `Server responded with status: ${response.status}`);
+                        });
+                    }
+                    // If response is OK, parse it as JSON
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        showSuccess('Form submitted successfully!');
+                        form.reset();
+                    } else {
+                        // Handle cases where response is OK but app script reports an error
+                        throw new Error(data.message || 'An unknown server error occurred.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    let userMessage = `Error: ${error.message}`; // Default error
+                    
+                    // --- IMPROVED ERROR HANDLING ---
+                    // Check for specific error messages to show a friendlier note
+                    if (error.message && (error.message.includes('DriveApp') || error.message.includes('Unexpected error'))) {
+                        // This error indicates a server-side issue, likely with Drive permissions or ID.
+                        userMessage = 'Submission failed: A server error occurred. Please contact the administrator.';
+                    } else if (error.message && (error.message.includes('NetworkError') || error.message.includes('Failed to fetch'))) {
+                        userMessage = 'Network error. Please check your connection and try again.';
+                    }
+                    
+                    showError(userMessage);
+                });
+            };
+            
+            reader.onerror = (error) => {
+                console.error('File reading error:', error);
+                showError('Error reading file.');
+            };
+        });
+
+        function showSuccess(message) {
+            statusMessage.textContent = message;
+            statusMessage.className = 'success';
+            submitButton.disabled = false;
+            submitButton.textContent = DEFAULT_SUBMIT_TEXT;
+        }
+
+        function showError(message) {
+            statusMessage.textContent = message;
+            statusMessage.className = 'error';
+            submitButton.disabled = false;
+            submitButton.textContent = DEFAULT_SUBMIT_TEXT;
+        }
+    </script>
 </body>
 </html>
